@@ -22,6 +22,7 @@ public class PhotoViewer extends CordovaPlugin {
 
     public static final String WRITE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
     public static final String READ = Manifest.permission.READ_EXTERNAL_STORAGE;
+    public static final String MEDIA = "android.permission.READ_MEDIA_IMAGES";
 
     public static final int REQ_CODE = 0;
 
@@ -33,8 +34,9 @@ public class PhotoViewer extends CordovaPlugin {
         if (action.equals("show")) {
             this.args = args;
             this.callbackContext = callbackContext;
-
-            if (cordova.hasPermission(READ) && cordova.hasPermission(WRITE)) {
+            if (android.os.Build.VERSION.SDK_INT >= 33 && cordova.hasPermission(MEDIA)){
+                this.launchActivity();
+            }else if (cordova.hasPermission(READ) && cordova.hasPermission(WRITE)) {
                 this.launchActivity();
             } else {
                 this.getPermission();
@@ -45,7 +47,11 @@ public class PhotoViewer extends CordovaPlugin {
     }
 
     protected void getPermission() {
-        cordova.requestPermissions(this, REQ_CODE, new String[]{WRITE, READ});
+        if (android.os.Build.VERSION.SDK_INT >= 33){
+            cordova.requestPermissions(this, REQ_CODE, new String[]{MEDIA});
+        }else{
+            cordova.requestPermissions(this, REQ_CODE, new String[]{WRITE, READ});
+        }
     }
 
     //
